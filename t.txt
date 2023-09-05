@@ -1,0 +1,7 @@
+        if all(x >= 0 for x in custos):
+            for i in custobasico:
+                if i != 0:
+                    print("Problem infeasible")
+                    sys.exit()
+
+    & len(custos) > 2

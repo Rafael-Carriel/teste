@@ -1,5 +1,5 @@
 import cplex
-import np
+import numpy as np
 import sys
 import os
 
@@ -257,22 +257,27 @@ def trocadebase(matrizB, matrizNB, custobasico, custonaobasico, quementra, quems
     return matrizB, matrizNB, custobasico, custonaobasico
 
 def simplex(custobasico, custonaobasico, matrizB, matrizNB, objetivo, b, num_Variaveis):
-    indices = [i+1 for i in range(len(objetivo))]
+    #indices = [i+1 for i in range(len(objetivo))]
     solucaoOtima = 0
     interacao = 0
     xfinal = [0] * num_Variaveis
     quementranabase2 = []
     indice_menor2 = []
-    xb = [0] * len(matrizB)
-    while(True):
+    #xb = [0] * len(matrizB)
+    while(True | interacao < 10):
         maior = 0
         quementranabase = 0
-        inversa = np.linalg.inv(matrizB)
+        print("matriz NB = ", matrizNB)
+        print("matriz B = ", matrizB)
+        inversa = matriz_inversa(matrizB)
+        #inversa = np.linalg.inv(matrizB)
+        print("inversa = ", inversa)
         custos = [0] * len(matrizNB)
         quementranabase = 0
         xb = multiplicamatriz(inversa, b)
+        print("xb = ", xb)
         multiplicador = multiplicadorsimplex(inversa, custobasico)
-
+        print("lambda = ", multiplicador, "\n")
         if(len(matrizB) == 1 and len(custonaobasico) > 1):
             aux = [0] * len(matrizNB)
             custos[0] = custo(custonaobasico[0], multiplicador, aux)
@@ -282,7 +287,7 @@ def simplex(custobasico, custonaobasico, matrizB, matrizNB, objetivo, b, num_Var
                 aux = [0] * len(matrizNB)
                 for k in range(len(matrizNB)):
                     aux[k] = matrizNB[k][i]
-                    custos[i] = custo(custonaobasico[i], multiplicador, aux)
+                custos[i] = custo(custonaobasico[i], multiplicador, aux)
 
 
         #verifica se tem valor negativo 
@@ -290,12 +295,10 @@ def simplex(custobasico, custonaobasico, matrizB, matrizNB, objetivo, b, num_Var
             if maior > custos[i]:
                 maior = custos[i]
                 quementranabase = i
-        # if all(x >= 0 for x in custos):
-        #     for i in custobasico:
-        #         if i != 0:
-        #             print("Problem infeasible")
-        #             sys.exit()
-        if maior >= 0 & len(custos) > 2:
+        print(custos)
+        print("maior =", maior, "custos = ", custos)
+        print(custobasico)
+        if maior >= 0:
             for i in range(len(custobasico)):
                 aux = custobasico[i] * xb[i]
                 solucaoOtima += aux
@@ -303,14 +306,12 @@ def simplex(custobasico, custonaobasico, matrizB, matrizNB, objetivo, b, num_Var
                 xfinal[quementranabase2[i]] = xb[indice_menor2[i]]
             return solucaoOtima, xfinal
         else:
+            print("aquuuuuuuuuiii")
             aux = [0] * len(matrizNB)
             for i in range(len(matrizNB)):
                 aux[i] = matrizNB[i][quementranabase]
             y = multiplicamatriz(inversa, aux)
-
-            if all(x <= 0 for x in y) | len(y) < 2:
-                print("Solution Unbound")
-                sys.exit()
+            print("y = ", y)
 
             mini = [0] * len(matrizB)
             for i in range(len(y)):
@@ -323,9 +324,14 @@ def simplex(custobasico, custonaobasico, matrizB, matrizNB, objetivo, b, num_Var
                 if mini[i] > 0:
                     if mini[i] < mini[indice_menor]:
                         indice_menor = i
-        #print("sai da base = ", indice_menor, ", entra na base = ", quementranabase)
+        print("sai da base = ", indice_menor, ", entra na base = ", quementranabase)
         indice_menor2.append(indice_menor)
         quementranabase2.append(quementranabase)
+        if all(x <= 0 for x in y):
+            print("Solution Unbounded")
+
+            sys.exit()
+        print("custobasico", custobasico)
         matrizB, matrizNB, custobasico, custonaobasico, = trocadebase(matrizB, matrizNB, custobasico, custonaobasico, int(quementranabase), int(indice_menor))
         interacao += 1
         
@@ -340,18 +346,18 @@ def main():
             print("Programa Finalizado ;-(")
             break
         else:
-                encontrado = [arquivo for arquivo in arquivos if arquivo.startswith(exercicio_desejado)]
-                if encontrado:
-                    caminho = os.path.join(diretorio, encontrado[0])
-                    sentido, quantidadeartificiais, sentidoOriginal, objetivo, matrizA, b, num_Variaveis, num_Restricoes = lerArquivoLP(caminho)
-                    if(quantidadeartificiais > 0):
-                        print("precisa artificial")
-                        matrizB, matrizNB, custob, custonb = artificial(sentido, objetivo, quantidadeartificiais, matrizA, b, num_Variaveis)
-                        solucaoOtima, x =simplex(custob, custonb, matrizB, matrizNB, objetivo, b, num_Variaveis)
-                    else:
-                        print("Não precisa de artificial")
-                        custobasico, custonaobasico, matrizB, matrizNB = basicaNaoBasica(objetivo, matrizA)
-                        solucaoOtima, x = simplex(custobasico, custonaobasico, matrizB, matrizNB, objetivo, b, num_Variaveis)
+            encontrado = [arquivo for arquivo in arquivos if arquivo.startswith(exercicio_desejado)]
+            if encontrado:
+                caminho = os.path.join(diretorio, encontrado[0])
+                sentido, quantidadeartificiais, sentidoOriginal, objetivo, matrizA, b, num_Variaveis, num_Restricoes = lerArquivoLP(caminho)
+                if(quantidadeartificiais > 0):
+                    print("precisa artificial")
+                    matrizB, matrizNB, custob, custonb = artificial(sentido, objetivo, quantidadeartificiais, matrizA, b, num_Variaveis)
+                    solucaoOtima, x =simplex(custob, custonb, matrizB, matrizNB, objetivo, b, num_Variaveis)
+                else:
+                    print("Não precisa de artificial")
+                    custobasico, custonaobasico, matrizB, matrizNB = basicaNaoBasica(objetivo, matrizA)
+                    solucaoOtima, x =simplex(custobasico, custonaobasico, matrizB, matrizNB, objetivo, b, num_Variaveis)
                     if(sentidoOriginal == "maximize"):
                         solucaoOtima *= -1
                     print("######################################################################################## \n")      
@@ -361,8 +367,7 @@ def main():
                         print("x",k,"= ", x[i])
                         k+=1
                     print("\n######################################################################################## \n")
-
-                else:
-                    print("exercicio não encontrado")
+            else:
+                print("exercicio não encontrado")
 main()
 
