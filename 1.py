@@ -88,7 +88,7 @@ def artificial(sentido, objetivo, quantidadeartificiais, matrizA, b, num_Variave
     matrizNB = []
     custob = []
     custonb = []
-   
+
     for x in range(num_Variaveis, ((len(matrizA[0]) - quantidadeartificiais) - 1)):
         matrizB.append([matrizA[i][x] for i in range(len(matrizA))])
         custob.append(novo_objetivo[x])
@@ -96,17 +96,38 @@ def artificial(sentido, objetivo, quantidadeartificiais, matrizA, b, num_Variave
         if novo_objetivo[x] == 1:
             matrizB.append([matrizA[i][x] for i in range(len(matrizA))])
             custob.append(novo_objetivo[x])
-    for x in range(num_Variaveis):
+
+    for x in range(0, num_Variaveis):
         matrizNB.append([matrizA[i][x] for i in range(len(matrizA))])
         custonb.append(novo_objetivo[x])
-    for x in range(len(matrizA[0]) - quantidadeartificiais, len(matrizA[0])):
+
+    for x in range(len(matrizB[0]) + quantidadeartificiais,len(matrizA[0])):
         matrizNB.append([matrizA[i][x] for i in range(len(matrizA))])
-        custonb.append(novo_objetivo[x])
-    matrizNB = np.transpose(matrizNB)
+        custonb.append(novo_objetivo[x])  
     print("matriz nao basicas = ", matrizNB)
     print("custonb = ", custonb) 
     print("matriz basicas = ", matrizB)
-    print("custob = ", custob)        
+    print("custob = ", custob)      
+
+   
+    # for x in range(num_Variaveis, ((len(matrizA[0]) - quantidadeartificiais) - 1)):
+    #     matrizB.append([matrizA[i][x] for i in range(len(matrizA))])
+    #     custob.append(novo_objetivo[x])
+    # for x in range(len(novo_objetivo)):
+    #     if novo_objetivo[x] == 1:
+    #         matrizB.append([matrizA[i][x] for i in range(len(matrizA))])
+    #         custob.append(novo_objetivo[x])
+    # for x in range(num_Variaveis):
+    #     matrizNB.append([matrizA[i][x] for i in range(len(matrizA))])
+    #     custonb.append(novo_objetivo[x])
+    # for x in range(len(matrizA[0]) - quantidadeartificiais, len(matrizA[0])):
+    #     matrizNB.append([matrizA[i][x] for i in range(len(matrizA))])
+    #     custonb.append(novo_objetivo[x])
+    # matrizNB = np.transpose(matrizNB)
+    # print("matriz nao basicas = ", matrizNB)
+    # print("custonb = ", custonb) 
+    # print("matriz basicas = ", matrizB)
+    # print("custob = ", custob)        
     
     interacao = 0
     while(True):
@@ -376,3 +397,4 @@ def matriz_inversa(matriz):
 
     return identidade
 '''
+
